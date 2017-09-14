@@ -27,4 +27,4 @@ bundle exec rake db:seed
 ```
 
 ## Why?
-Because at work, we had a bash script that did this but it was slow. This is faster, because of concurrency. Also, Go is fun.
+Because at work we have a bash script that does this but it is slow. This is faster, because of concurrency (and, depending on your computer, parallelism using GOMAXPROCS). Also, Go is fun.
