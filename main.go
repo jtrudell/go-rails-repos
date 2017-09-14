@@ -4,11 +4,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
 	"log"
 	"os/exec"
 	"runtime"
+	"sync"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 // replace with your default repos here, which will all need to be in the same directory (e.g., "projects")
@@ -19,8 +21,8 @@ var repos = []string{
 	"",
 }
 
-// counter initialized to manage runRepo go routines and ensure main doesn't exit until complete
-var counter int = 0
+// WaitGroup initialized to manage runRepo go routines and ensure main doesn't exit until complete
+var wg sync.WaitGroup
 
 // gitCommands takes the dir string and runs gitStash, gitCheckoutMaster and gitPullMaster for it
 func gitCommands(dir string) {
@@ -94,10 +96,10 @@ func runRepo(dir string) {
 
 	duration := time.Since(start)
 	blue.Printf("Done with %s. Time elapsed: %v\n", dir, duration)
-	counter++
+	wg.Done()
 }
 
-// reposFlag initializes -repos flag and checks that repos has been populated
+// reposFlag initializes -repos flag and checks that repos have been populated
 func reposFlag() {
 	repoPtr := flag.Bool("repos", false, "a list of repositories separated by spaces")
 	flag.Parse()
@@ -114,7 +116,7 @@ func reposFlag() {
 
 // init sets GOMAXPROCS and calls repos flag
 func init() {
-	runtime.GOMAXPROCS(4)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	reposFlag()
 }
 
@@ -126,13 +128,11 @@ func main() {
 
 	green.Printf("Updating your repos %s at %v\n\n", repos, start)
 
+	wg.Add(len(repos))
 	for _, repo := range repos {
 		go runRepo(repo)
 	}
-
-	for counter < len(repos) {
-		//blergh
-	}
+	wg.Wait()
 
 	duration := time.Since(start)
 	green.Printf("\nDone updating. Time elapsed: %v\n", duration)
