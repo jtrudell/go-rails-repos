@@ -1,5 +1,5 @@
 # go-rails-repos
-A Go CLI that updates your local rails repositories from origin/master, bundles and then runs the rake tasks to drop, create, migrate and seed the repo database.
+A Go CLI script that updates your local rails repositories from origin/master, bundles and then runs the rake tasks to drop, create, migrate and seed the repo database.
 
 ## Installation
 ```bash
